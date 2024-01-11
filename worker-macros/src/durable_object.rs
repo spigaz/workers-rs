@@ -110,6 +110,41 @@ pub fn expand_macro(tokens: TokenStream) -> syn::Result<TokenStream> {
                             #method
                         }
                     }
+                    "websocket_message" => {
+                        // FIXME: validate that fn arguments match our expectations.
+                        // The incoming arguments are (WebSocket, String | ArrayBuffer).
+                        let mut method = impl_method.clone();
+                        method.sig.ident = Ident::new("_websocket_message_raw", method.sig.ident.span());
+                        quote! {
+                            #pound[wasm_bindgen::prelude::wasm_bindgen(js_name = webSocketMessage)]
+                            pub fn _websocket_message(&mut self, ws: worker_sys::web_sys::WebSocket, message: wasm_bindgen::JsValue) -> js_sys::Promise {
+
+                                let ws_message = if let Some(s) = message.as_string() {
+                                    worker::WebSocketIncomingMessage::String(s)
+                                } else {
+                                    // We assume that `message` is an ArrayBuffer.
+                                    // FIXME: can we check that before attempting the conversion?
+                                    let v = js_sys::Uint8Array::new(&message).to_vec();
+                                    worker::WebSocketIncomingMessage::Binary(v)
+                                };
+
+                                // SAFETY:
+                                // On the surface, this is unsound because the Durable Object could be dropped
+                                // while JavaScript still has possession of the future. However,
+                                // we know something that Rust doesn't: that the Durable Object will never be destroyed
+                                // while there is still a running promise inside of it, therefore we can let a reference
+                                // to the durable object escape into a static-lifetime future.
+                                let static_self: &'static mut Self = unsafe {&mut *(self as *mut _)};
+
+                                wasm_bindgen_futures::future_to_promise(async move {
+                                    static_self._websocket_message_raw(ws.into(), ws_message).await;
+                                    Ok(wasm_bindgen::JsValue::NULL)
+                                })
+                            }
+
+                            #method
+                        }
+                    }
                     _ => panic!()
                 };
                 tokenized.push(tokens);

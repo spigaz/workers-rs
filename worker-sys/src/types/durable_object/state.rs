@@ -15,4 +15,18 @@ extern "C" {
 
     #[wasm_bindgen(method, js_name=waitUntil)]
     pub fn wait_until(this: &DurableObjectState, promise: &js_sys::Promise);
+
+    #[wasm_bindgen(method, js_name=acceptWebSocket)]
+    pub fn accept_websocket(this: &DurableObjectState, ws: &web_sys::WebSocket, tags: &js_sys::Object);
+
+    /* not implemented yet.
+    #[wasm_bindgen(method, js_name=getWebSockets)]
+    pub fn get_websockets(this: &DurableObjectState, tag: js_sys::Object) -> js_sys::Object;
+
+    #[wasm_bindgen(extends=js_sys::Object)]
+    pub type WebSocketRequestResponsePair;
+
+    #[wasm_bindgen(method, js_name=setWebSocketAutoResponse)]
+    pub fn set_websocket_auto_response(this: &DurableObjectState, request_response: WebSocketRequestResponsePair);
+    */
 }

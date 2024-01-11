@@ -18,7 +18,7 @@ use crate::{
     error::Error,
     request::Request,
     response::Response,
-    Result,
+    Result, WebSocket,
 };
 
 use async_trait::async_trait;
@@ -188,6 +188,34 @@ impl State {
             future.await;
             Ok(JsValue::UNDEFINED)
         }))
+    }
+
+    /// Add a `WebSocket` to the set attached to this Durable Object.
+    ///
+    /// `ws.accept()` must not have been called separately. Once called, any
+    /// incoming messages will be delivered by calling `websocket_message`, and
+    /// `close()` will be invoked upon disconnect.
+    ///
+    /// After calling `accept_websocket()`, the WebSocket is accepted. Therefore,
+    /// you can use its `send()` and `close()` methods to send messages. Its
+    /// `add_event_listener()` method will not ever receive any events as they
+    /// will be delivered to the Durable Object.
+    ///
+    /// `tags` are optional string tags used to look up the WebSocket with
+    /// `get_websockets()`. Each tag is limited to 256 characters, and each
+    /// WebSocket is limited to 10 tags associated with it.
+    ///
+    /// The Hibernatable WebSockets API permits a maximum of 32,768 WebSocket
+    /// connections per Durable Object instance, but the CPU and memory usage
+    /// of a given workload may further limit the practical number of
+    /// simultaneous connections.
+
+    pub fn accept_websocket(&self, websocket: &WebSocket, tags: &[&str]) {
+        let js_tags = js_sys::Array::new();
+        for tag in tags {
+            js_tags.push(&js_sys::JsString::from(*tag));
+        }
+        self.inner.accept_websocket(websocket.as_ref(), &js_tags)
     }
 
     // needs to be accessed by the `durable_object` macro in a conversion step
@@ -745,4 +773,11 @@ pub trait DurableObject {
     async fn alarm(&mut self) -> Result<Response> {
         unimplemented!("alarm() handler not implemented")
     }
+}
+
+/// A message passed to a Durable Object's `websocket_message` function.
+#[derive(Debug, Clone)]
+pub enum WebSocketIncomingMessage {
+    String(String),
+    Binary(Vec<u8>),
 }

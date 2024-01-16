@@ -218,6 +218,28 @@ impl State {
         self.inner.accept_websocket(websocket.as_ref(), &js_tags)
     }
 
+    // FIXME: maybe this should be two functions? One with a tag and one without?
+    pub fn get_websockets(&self, tag: Option<&str>) -> Vec<WebSocket> {
+        let js_tag: JsValue = match tag {
+            Some(s) => s.into(),
+            None => JsValue::UNDEFINED,
+        };
+
+        let websockets = self.inner.get_websockets(js_tag);
+        let websockets: js_sys::Array = websockets
+            .dyn_into()
+            .expect("get_websockets returned wrong type");
+        websockets
+            .iter()
+            .map(|ws| {
+                let ws: web_sys::WebSocket = ws
+                    .dyn_into()
+                    .expect("get_websockets returned non-WebSocket value");
+                WebSocket::from(ws)
+            })
+            .collect()
+    }
+
     // needs to be accessed by the `durable_object` macro in a conversion step
     pub fn _inner(self) -> DurableObjectState {
         self.inner

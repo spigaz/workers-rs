@@ -19,10 +19,10 @@ extern "C" {
     #[wasm_bindgen(method, js_name=acceptWebSocket)]
     pub fn accept_websocket(this: &DurableObjectState, ws: &web_sys::WebSocket, tags: &js_sys::Object);
 
-    /* not implemented yet.
     #[wasm_bindgen(method, js_name=getWebSockets)]
-    pub fn get_websockets(this: &DurableObjectState, tag: js_sys::Object) -> js_sys::Object;
+    pub fn get_websockets(this: &DurableObjectState, tag: wasm_bindgen::JsValue) -> wasm_bindgen::JsValue;
 
+    /* not implemented yet.
     #[wasm_bindgen(extends=js_sys::Object)]
     pub type WebSocketRequestResponsePair;
 

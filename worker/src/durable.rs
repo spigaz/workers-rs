@@ -51,6 +51,13 @@ impl Stub {
         Ok(response.dyn_into::<web_sys::Response>()?.into())
     }
 
+    /// Send an internal Request to the Durable Object to which the stub points.
+    pub async fn fetch_with_request_raw(&self, req: web_sys::Request) -> Result<web_sys::Response> {
+        let promise = self.inner.fetch_with_request(&req)?;
+        let response = JsFuture::from(promise).await?;
+        Ok(response.dyn_into::<web_sys::Response>()?)
+    }
+
     /// Construct a Request from a URL to the Durable Object to which the stub points.
     pub async fn fetch_with_str(&self, url: &str) -> Result<Response> {
         let promise = self.inner.fetch_with_str(url)?;

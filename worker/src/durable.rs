@@ -151,6 +151,10 @@ pub struct ObjectId<'a> {
 }
 
 impl ObjectId<'_> {
+    pub fn name(&self) -> Option<String> {
+        self.inner.name()
+    }
+
     /// Get a Stub for the Durable Object instance identified by this ObjectId.
     pub fn get_stub(&self) -> Result<Stub> {
         self.namespace

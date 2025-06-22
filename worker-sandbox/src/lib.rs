@@ -8,6 +8,7 @@ use tower_service::Service;
 use worker::*;
 
 mod alarm;
+mod analytics_engine;
 mod assets;
 mod cache;
 mod counter;
@@ -21,6 +22,8 @@ mod request;
 mod router;
 mod service;
 mod socket;
+mod sql_counter;
+mod sql_iterator;
 mod test;
 mod user;
 mod utils;
@@ -72,7 +75,7 @@ type HandlerResponse = http::Response<axum::body::Body>;
 #[cfg(not(feature = "http"))]
 type HandlerResponse = Response;
 
-#[event(fetch)]
+#[event(fetch, respond_with_errors)]
 pub async fn main(
     request: HandlerRequest,
     env: Env,

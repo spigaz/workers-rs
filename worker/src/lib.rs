@@ -157,13 +157,14 @@ pub use wasm_bindgen_futures;
 pub use worker_kv as kv;
 
 pub use cf::{Cf, CfResponseProperties, TlsClientAuth};
-pub use worker_macros::{durable_object, event, send};
+pub use worker_macros::{consume, durable_object, event, send};
 #[doc(hidden)]
 pub use worker_sys;
 pub use worker_sys::{console_debug, console_error, console_log, console_warn};
 
 pub use crate::abort::*;
 pub use crate::ai::*;
+pub use crate::analytics_engine::*;
 pub use crate::cache::{Cache, CacheDeletionOutcome, CacheKey};
 pub use crate::context::Context;
 pub use crate::cors::Cors;
@@ -197,6 +198,7 @@ pub use crate::websocket::*;
 
 mod abort;
 mod ai;
+mod analytics_engine;
 mod cache;
 mod cf;
 mod context;
@@ -229,6 +231,7 @@ mod router;
 mod schedule;
 pub mod send;
 mod socket;
+mod sql;
 mod streams;
 mod version;
 mod websocket;
@@ -250,3 +253,5 @@ pub type HttpRequest = ::http::Request<http::body::Body>;
 #[cfg(feature = "http")]
 /// **Requires** `http` feature. Type alias for `http::Response<worker::Body>`.
 pub type HttpResponse = ::http::Response<http::body::Body>;
+
+pub use crate::sql::*;
